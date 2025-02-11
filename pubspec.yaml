@@ -1,0 +1,25 @@
+name: impresion_zpl
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.1
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_blue_plus: ^1.35.2
+  permission_handler: ^11.3.1
+  path_provider: ^2.1.5
+  #esc_pos_printer: ^4.1.0
+  #esc_pos_utils: ^1.1.0
+  #zebrautility: ^0.0.41
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+flutter:
+  uses-material-design: true
+
