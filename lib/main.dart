@@ -31,7 +31,8 @@ class ImpresionArchivosZpl extends StatefulWidget {
   _ImpresionArchivosZplState createState() => _ImpresionArchivosZplState();
 }
 class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
-  String filePath= '/storage/emulated/0/Android/data/com.example.impresion_zpl/files/downloads/Etiqueta_producto.txt';
+  //String filePath= '/storage/emulated/0/Android/data/com.example.impresion_zpl/files/downloads/Etiqueta_producto.txt';
+  String filePath= '/storage/emulated/0/Android/data/com.example.impresion_zpl/files/downloads/factura_pos_40.zpl';
   BluetoothDevice? zebraPrinter;
   BluetoothCharacteristic? writeCharacteristic;
   // String zplCode = '''
@@ -105,7 +106,14 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
     File file = File(filePath);
     String zplCode = await file.readAsString();
     List<int> zplBytes = utf8.encode(zplCode);
-    await writeCharacteristic!.write(zplBytes, withoutResponse: false);
+    int fragmentSize = 240;
+    int totalBytes = zplBytes.length;
+    for (int i = 0; i < totalBytes; i += fragmentSize) {
+      List<int> fragment = zplBytes.sublist(i, (i + fragmentSize) < totalBytes ? (i + fragmentSize) : totalBytes);
+      await writeCharacteristic!.write(fragment, withoutResponse: false);
+      await Future.delayed(Duration(milliseconds: 50));
+     }
+    // await writeCharacteristic!.write(zplBytes, withoutResponse: false);
   } catch (e) {
      debugPrint("eerrror: $e");
     _showDialog("ERROR","❌ Error al enviar el archivo: $e");
