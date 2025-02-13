@@ -60,20 +60,17 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
       debugPrint("-----iniciando-escaneo---------");
       FlutterBluePlus.startScan(timeout: Duration(seconds: 50));
       FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
-        // Imprimir todos los resultados de escaneo para depuración
+        var dispositivosConNombre = results.where((r) => r.device.platformName.isNotEmpty).toList();
         debugPrint("Resultados del escaneo: ${results.map((r) => r.device.platformName).toList()}");
-        for (ScanResult r in results) {
-          if (r.device.platformName.contains("ZQ-ELSA")){
-            zebraPrinter = r.device;
-            FlutterBluePlus.stopScan();
-            break;
-          }
+        if (dispositivosConNombre.isNotEmpty) {
+          zebraPrinter = dispositivosConNombre.first.device;
+          FlutterBluePlus.stopScan();  // Detiene el escaneo inmediatamente
         }
       });
       if (zebraPrinter!=null){
         await zebraPrinter!.connect();
         _showDialog("Conectado", "Conectado a la impresora ${zebraPrinter!.platformName}");
-        enviarAImpresora();
+        // enviarAImpresora();
         //await zebraPrinter!.disconnect();
       }else{
          _showDialog("No se encontraron impresoras", "No se encontraron impresoras Zebra.");
