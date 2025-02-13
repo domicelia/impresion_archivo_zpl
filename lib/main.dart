@@ -70,7 +70,7 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
       if (zebraPrinter!=null){
         await zebraPrinter!.connect();
         _showDialog("Conectado", "Conectado a la impresora ${zebraPrinter!.platformName}");
-        // enviarAImpresora();
+        enviarAImpresora();
         //await zebraPrinter!.disconnect();
       }else{
          _showDialog("No se encontraron impresoras", "No se encontraron impresoras Zebra.");
