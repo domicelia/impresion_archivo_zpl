@@ -32,7 +32,7 @@ class ImpresionArchivosZpl extends StatefulWidget {
 }
 class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
   //String filePath= '/storage/emulated/0/Android/data/com.example.impresion_zpl/files/downloads/Etiqueta_producto.txt';
-  String filePath= '/storage/emulated/0/Android/data/com.example.impresion_zpl/files/downloads/factura_pos_40.zpl';
+  String filePath= '/storage/emulated/0/Android/data/com.example.impresion_zpl/files/downloads/factura_pos_57.zpl';
   BluetoothDevice? zebraPrinter;
   BluetoothCharacteristic? writeCharacteristic;
   // String zplCode = '''
@@ -44,9 +44,9 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
   // ''';
 
   void imprimirArchivo() async {
-    //  Directory? directorioBase = await getDownloadsDirectory();
-    //  directorioBase ??= await getApplicationDocumentsDirectory();
-    //  String directoryPath = p.join(directorioBase.path,'factura_zebra_1.pdf',);
+     Directory? directorioBase = await getDownloadsDirectory();
+     directorioBase ??= await getApplicationDocumentsDirectory();
+     String directoryPath = p.join(directorioBase.path,'factura_zebra_1.pdf',);
      File file = File(filePath);
       if (file.existsSync()) { //verificar existencia de archivo
         buscarImpresora();
@@ -58,15 +58,22 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
     var status = await Permission.location.request();
     if (status.isGranted){
       debugPrint("-----iniciando-escaneo---------");
-      FlutterBluePlus.startScan(timeout: Duration(seconds: 50));
-      FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
-        var dispositivosConNombre = results.where((r) => r.device.platformName.isNotEmpty).toList();
-        debugPrint("Resultados del escaneo: ${results.map((r) => r.device.platformName).toList()}");
-        if (dispositivosConNombre.isNotEmpty) {
-          zebraPrinter = dispositivosConNombre.first.device;
-          FlutterBluePlus.stopScan();  // Detiene el escaneo inmediatamente
-        }
-      });
+      // conexion directa a primer dispositivo vinculado
+      List<BluetoothDevice> bondedDevices = await FlutterBluePlus.bondedDevices; // solo dispositivo vinculado
+      debugPrint("Resultados dispositivos vinculado: ${bondedDevices.map((r) => r.remoteId).toList()}");
+      if (bondedDevices.isNotEmpty) {
+        zebraPrinter = bondedDevices.first;
+      }
+      // FlutterBluePlus.startScan(timeout: Duration(seconds: 50));
+      // FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
+      //   var dispositivosConNombre = results.where((r) => r.device.platformName.isNotEmpty).toList();
+      //   debugPrint("Resultados del escaneo: ${results.map((r) => r.device.platformName).toList()}");
+      //   if (dispositivosConNombre.isNotEmpty) {
+      //     zebraPrinter = dispositivosConNombre.first.device;
+      //     FlutterBluePlus.stopScan();  // Detiene el escaneo inmediatamente
+      //   }
+      // });
+      
       if (zebraPrinter!=null){
         await zebraPrinter!.connect();
         _showDialog("Conectado", "Conectado a la impresora ${zebraPrinter!.platformName}");
@@ -103,7 +110,7 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
     File file = File(filePath);
     String zplCode = await file.readAsString();
     List<int> zplBytes = utf8.encode(zplCode);
-    int fragmentSize = 240;
+    int fragmentSize = 128;
     int totalBytes = zplBytes.length;
     for (int i = 0; i < totalBytes; i += fragmentSize) {
       List<int> fragment = zplBytes.sublist(i, (i + fragmentSize) < totalBytes ? (i + fragmentSize) : totalBytes);
@@ -112,7 +119,7 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
      }
     // await writeCharacteristic!.write(zplBytes, withoutResponse: false);
   } catch (e) {
-     debugPrint("eerrror: $e");
+    debugPrint("eerrror: $e");
     _showDialog("ERROR","❌ Error al enviar el archivo: $e");
   }
 }
