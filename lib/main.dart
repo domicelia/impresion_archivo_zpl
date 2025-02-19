@@ -60,9 +60,11 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
       debugPrint("-----iniciando-escaneo---------");
       // conexion directa a primer dispositivo vinculado
       List<BluetoothDevice> bondedDevices = await FlutterBluePlus.bondedDevices; // solo dispositivo vinculado
-      debugPrint("Resultados dispositivos vinculado: ${bondedDevices.map((r) => r.remoteId).toList()}");
+      debugPrint("Resultados dispositivos vinculado: ${bondedDevices.map((r) => r.platformName).toList()}");
       if (bondedDevices.isNotEmpty) {
         zebraPrinter = bondedDevices.first;
+         await zebraPrinter!.connect(timeout: Duration(seconds: 100));
+        enviarAImpresora();
       }
       // FlutterBluePlus.startScan(timeout: Duration(seconds: 50));
       // FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
@@ -74,14 +76,14 @@ class _ImpresionArchivosZplState extends State<ImpresionArchivosZpl> {
       //   }
       // });
       
-      if (zebraPrinter!=null){
-        await zebraPrinter!.connect();
-        _showDialog("Conectado", "Conectado a la impresora ${zebraPrinter!.platformName}");
-        enviarAImpresora();
-        //await zebraPrinter!.disconnect();
-      }else{
-         _showDialog("No se encontraron impresoras", "No se encontraron impresoras Zebra.");
-      }
+      // if (zebraPrinter!=null){
+      //   await zebraPrinter!.connect();
+      //   _showDialog("Conectado", "Conectado a la impresora ${zebraPrinter!.platformName}");
+      //   enviarAImpresora();
+      //   //await zebraPrinter!.disconnect();
+      // }else{
+      //    _showDialog("No se encontraron impresoras", "No se encontraron impresoras Zebra.");
+      // }
     } else {
     _showDialog("Permiso Denegado", "Se necesitan permisos de ubicación para escanear dispositivos Bluetooth.");
     }
